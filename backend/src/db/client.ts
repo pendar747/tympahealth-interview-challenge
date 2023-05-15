@@ -1,13 +1,14 @@
 import { Client } from "pg";
 
-export const client = new Client({
-  host: "localhost",
-  user: "tympahealthserver",
-  password: "server-pass",
-});
+const databaseUrl =
+  process.env.DATABASE_URL ??
+  "postgres://tympahealthserver:server-pass@localhost:5432/tympahealth";
+
+export const client = new Client(databaseUrl);
 
 export const setupDB = async () => {
-  // setup tbl_device
+  await client.connect();
+
   await client.query(`
     CREATE table IF NOT EXISTS tbl_device
     (
@@ -24,15 +25,12 @@ export const setupDB = async () => {
       app_version varchar default NULL,
       created_datetime timestamp default CURRENT_TIMESTAMP not null,
       last_updated_datetime timestamp default CURRENT_TIMESTAMP not null,
-      last_updated_ip varchar default NULL
+      last_updated_ip varchar default NULL,
+      constraint tbl_device_pk primary key (device_id)
     );
   `);
 
   await client.query(
-    `create unique index tbl_device_device_id_uindex on tbl_device (device_id);`
-  );
-
-  await client.query(
-    `alter table tbl_device add constraint tbl_device_pk primary key (device_id);`
+    `CREATE UNIQUE INDEX IF NOT EXISTS tbl_device_device_id_uindex ON tbl_device (device_id);`
   );
 };
