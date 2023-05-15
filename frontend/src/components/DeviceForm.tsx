@@ -1,13 +1,17 @@
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 
-const DeviceForm = () => {
-  const [deviceData, setDeviceData] = useState({
+const DeviceForm: FC<{ device?: tympahealth.Device }> = ({
+  device = {
     device_make: "",
     device_model: "",
     device_os_version: "",
-  });
+  },
+}) => {
+  const [deviceData, setDeviceData] = useState(device);
   const router = useRouter();
+
+  const operation = device.device_id ? "Update" : "Create";
 
   const handleChange = (e: React.ChangeEvent) => {
     const target = e.target as HTMLInputElement;
@@ -27,12 +31,16 @@ const DeviceForm = () => {
         },
         body: JSON.stringify(deviceData),
       });
-      setDeviceData({
-        device_make: "",
-        device_model: "",
-        device_os_version: "",
-      });
-      router.replace(router.asPath);
+      if (operation === "Create") {
+        setDeviceData({
+          device_make: "",
+          device_model: "",
+          device_os_version: "",
+        });
+        router.replace(router.asPath);
+      } else {
+        router.replace("/");
+      }
     } catch (error) {
       console.error("error creating devices", error);
     }
@@ -82,7 +90,7 @@ const DeviceForm = () => {
           />
         </div>
         <button type="submit" className="btn btn-primary">
-          Create
+          {operation}
         </button>
       </form>
     </div>

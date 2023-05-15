@@ -13,6 +13,19 @@ deviceApi.get("/", async (req, res, next) => {
   }
 });
 
+// Get a single device
+deviceApi.get("/:device_id", async (req, res, next) => {
+  try {
+    const queryRes = await client.query(
+      "SELECT * from tbl_device WHERE device_id = $1;",
+      [req.params.device_id]
+    );
+    res.json(queryRes.rows[0]);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Create a device
 deviceApi.post("/", async (req, res, next) => {
   try {
@@ -26,7 +39,6 @@ deviceApi.post("/", async (req, res, next) => {
       device_projects_json = null,
       app_identifier = null,
       app_version = null,
-      last_updated_ip = null,
     } = req.body;
 
     const device_activation_code = Math.floor(
@@ -42,6 +54,8 @@ deviceApi.post("/", async (req, res, next) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `;
+
+    const last_updated_ip = req.ip;
 
     const values = [
       device_id,
@@ -102,7 +116,6 @@ deviceApi.put("/devices/:device_id", async (req, res) => {
       device_projects_json,
       app_identifier,
       app_version,
-      last_updated_ip,
     } = req.body;
 
     const query = `
@@ -121,6 +134,8 @@ deviceApi.put("/devices/:device_id", async (req, res) => {
       WHERE device_id = $1
       RETURNING *
     `;
+
+    const last_updated_ip = req.ip;
 
     const values = [
       device_id,

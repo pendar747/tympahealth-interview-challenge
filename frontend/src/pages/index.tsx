@@ -9,9 +9,14 @@ export const getStaticProps: GetStaticProps<{
   try {
     const res = await fetch("http://localhost:9000/devices");
     const devices: tympahealth.Device[] = await res.json();
+    const sorted = devices.sort((a, b) =>
+      a.device_os_version.toUpperCase() > b.device_os_version.toUpperCase()
+        ? 1
+        : -1
+    );
     return {
       props: {
-        devices,
+        devices: sorted,
       },
     };
   } catch (error) {
@@ -63,6 +68,14 @@ const Home: FC<{ devices: tympahealth.Device[] }> = ({ devices }) => {
                     <strong>Release Date:</strong> {device.created_datetime}
                   </p>
                   <p>
+                    <button
+                      className="btn btn-sm btn-primary m-1"
+                      onClick={() =>
+                        router.replace(`/edit/${device.device_id}`)
+                      }
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => handleDelete(device.device_id)}
                       className="btn btn-sm btn-danger"
