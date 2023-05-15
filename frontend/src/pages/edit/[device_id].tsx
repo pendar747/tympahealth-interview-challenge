@@ -29,7 +29,7 @@ export const getStaticProps: GetStaticProps<{
 }> = async (context) => {
   try {
     const res = await fetch(
-      `http://localhost:9000/devices/${context.params?.device_id}`
+      `${process.env.apiUrl}/devices/${context.params?.device_id}`
     );
     const device: tympahealth.Device = await res.json();
     return {

@@ -7,7 +7,7 @@ export const getStaticProps: GetStaticProps<{
   devices: tympahealth.Device[];
 }> = async () => {
   try {
-    const res = await fetch("http://localhost:9000/devices");
+    const res = await fetch(`${process.env.apiUrl}/devices`);
     const devices: tympahealth.Device[] = await res.json();
     const sorted = devices.sort((a, b) =>
       a.device_os_version.toUpperCase() > b.device_os_version.toUpperCase()
@@ -52,7 +52,7 @@ const Home: FC<{ devices: tympahealth.Device[] }> = ({ devices }) => {
         <div className="col">
           <h2 className="mt-4 mb-3">Device List</h2>
           {devices.length === 0 ? (
-            <p>Loading devices...</p>
+            <p>No devices</p>
           ) : (
             <ul className="list-group">
               {devices.map((device) => (
