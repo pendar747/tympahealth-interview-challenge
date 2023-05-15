@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { client } from "../db/client";
 const deviceApi = Router();
+import * as uuid from "uuid";
 
 // Get all devices
 deviceApi.get("/", async (req, res, next) => {
@@ -16,7 +17,6 @@ deviceApi.get("/", async (req, res, next) => {
 deviceApi.post("/", async (req, res, next) => {
   try {
     const {
-      device_id,
       device_status_code = "NEW",
       tenant_id = null,
       device_make = null,
@@ -32,6 +32,7 @@ deviceApi.post("/", async (req, res, next) => {
     const device_activation_code = Math.floor(
       Math.random() * (99999 - 10000 + 1) + 10000
     ).toString();
+    const device_id = uuid.v4();
 
     const query = `
       INSERT INTO tbl_device (

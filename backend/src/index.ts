@@ -1,8 +1,9 @@
+import bodyParser from "body-parser";
 import express from "express";
 import deviceApi from "./api/deviceApi";
 import { setupDB } from "./db/client";
 const app = express();
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ?? 9000;
 
 const startServer = async () => {
   try {
@@ -12,16 +13,25 @@ const startServer = async () => {
     process.exit(1);
   }
 
+  app.use(bodyParser.json());
+
   app.get("/health", (req, res) => {
-    res.sendStatus(2000);
+    res.sendStatus(200);
   });
 
-  app.use("/device", deviceApi);
+  app.use("/devices", deviceApi);
 
-  app.use((err, res) => {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  });
+  app.use(
+    (
+      err: Error,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      console.error(err.stack);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  );
 
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
